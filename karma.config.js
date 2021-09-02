@@ -1,7 +1,7 @@
 // from https://mike-ward.net/2015/09/07/tips-on-setting-up-karma-testing-with-webpack/
 // TODO since we have 2 entrypoints in this repo, we should test the first one first.
 // and maybe create another one in another files.
-var webpackConfig = require('./webpack.config.js');
+var webpackConfig = require('./webpack.config.js')[0];
 webpackConfig.entry = {};
 module.exports = function (config) {
     config.set({
@@ -28,6 +28,7 @@ module.exports = function (config) {
         // preprocess matching files before serving them to the browser
         // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
         preprocessors: {
+            './src/deriv_api/DerivAPIBasic.js': ['webpack'],
             './karma-setup.js': ['webpack'],
             // Use webpack to bundle our tests files
             'src/**/__tests__/**/*.js': ['webpack'],
