@@ -60,9 +60,11 @@ async function main() {
 
         // Wait until payout is greater than USD 19
         //await contract.onUpdate().pipe(find(({ payout }) => payout.value >= expected_payout)).toPromise();
-        await contract.onUpdate().pipe(first()).toPromise();
+        //await contract.onUpdate().pipe(first()).toPromise();
 
-
+        await new Promise((resolve, reject) => {
+            contract.onUpdate().pipe(first()).pipe(resolve, reject);
+      });
         const buy = await contract.buy();
 
         console.log(`Buy price is: ${buy.price.currency} ${buy.price.display}`);
