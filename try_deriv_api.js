@@ -1,10 +1,11 @@
 'use strict';
 global.WebSocket = require('ws');
-const { find } = require('rxjs/operators');
-const DerivAPI = require('@deriv/deriv-api/dist/DerivAPI');
+const { find, first} = require('rxjs/operators');
+//const DerivAPI = require('@deriv/deriv-api/dist/DerivAPI');
+const DerivAPI = require('./dist/DerivAPI');
 const token = process.env.DERIV_TOKEN;
 const app_id = process.env.APP_ID || 1089;
-const expected_payout = process.env.EXPECTED_PAYOUT || 19;
+const expected_payout = process.env.EXPECTED_PAYOUT || 1;
 
 if (!token) {
     console.error('DERIV_TOKEN environment variable is not set');
@@ -41,22 +42,26 @@ async function main() {
             basis: 'stake',
         });
 
-        contract.onUpdate(({ status, payout, bid_price }) => {
-            switch (status) {
-                case 'proposal':
-                    return console.log(
-                        `Current payout: ${payout.currency} ${payout.display}`);
-                case 'open':
-                    return console.log(
-                        `Current bid price: ${bid_price.currency} ${bid_price.display}`);
-                default:
-                    console.log("contract onUpdate default");
-                    break;
-            };
-        });
+        contract.onUpdate(console.log, console.log) ;
+        //contract.onUpdate(({ status, payout, bid_price }) => {
+        //    console.log("comming..... contract");
+        //    switch (status) {
+        //        case 'proposal':
+        //            return console.log(
+        //                `Current payout: ${payout.currency} ${payout.display}`);
+        //        case 'open':
+        //            return console.log(
+        //                `Current bid price: ${bid_price.currency} ${bid_price.display}`);
+        //        default:
+        //            console.log("contract onUpdate default");
+        //            break;
+        //    };
+        //});
 
         // Wait until payout is greater than USD 19
-        await contract.onUpdate().pipe(find(({ payout }) => payout.value >= expected_payout)).toPromise();
+        //await contract.onUpdate().pipe(find(({ payout }) => payout.value >= expected_payout)).toPromise();
+        await contract.onUpdate().pipe(first()).toPromise();
+
 
         const buy = await contract.buy();
 
