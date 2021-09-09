@@ -1,0 +1,95 @@
+<html>
+<head>
+<title>Deriv App</title>
+<style>
+.grid-container {
+  display: grid;
+  grid: 30px / 350px auto auto;
+}
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://unpkg.com/@deriv/deriv-api/dist/DerivAPI.js"></script>
+
+<script>
+
+const api = new DerivAPI({app_id: 1089 });
+var currency;
+const getAccount = async function() {
+	const account = await api.account('Y7cYZlnUPVXMump');
+	const { loginid, email } = account;
+	$("#login-id").html(loginid);	
+	currency = `${account.balance.currency}`;
+	$('.balance').html(`${account.balance.currency} ${account.balance.display}`);
+}
+getAccount();
+
+var bidPrice = 0; 
+const getTicks = async function() {
+	
+	const ticks = await api.ticks('WLDAUD');
+	// tick stream
+	ticks.onUpdate().subscribe(showTicks);
+
+}
+getTicks();
+
+const showTicks = async function(tick) {
+	$(".ticks").append('<div class="grid-container"><div class="ask">' + tick.ask.display + '</div><div class="bid">' + tick.bid.display + '</div><div class="pip">' + tick.raw.pip_size + '</div><div class="quote">' + tick.quote.display + '</div></div>');
+	bidPrice = tick.ask.display;
+}
+
+
+const buyContract = async function() {
+	const contract = await api.contract({
+    		contract_type: 'CALL',
+    		symbol: 'WLDAUD',
+    		duration: 5,
+    		duration_unit: 't',
+		amount: 10,
+		basis: 'stake',
+		currency: currency
+	});
+	
+	contract.onUpdate().subscribe(contract => {
+		console.log(contract);
+    		if (contract.is_sold) {
+		        console.log("sold");
+			api.forget_all();
+    		}
+	});
+}
+
+</script>
+</head>
+<body>
+	<div class="grid-container"> 
+		<div style="align:right">Login ID</div>
+		<div style="align:left" id="login-id"></div>
+	</div>
+	<div class="grid-container"> 
+		<div style="align:right">Balance</div>
+		<div style="align:left" class="balance"></div>
+	</div>
+
+	<div class="ticks"> 
+		<div class="grid-container">
+			<div>ask</div>
+			<div>bid</div>
+			<div>pip</div>
+			<div>quote</div>
+		</div>
+	</div>
+	
+	<div class="grid-container"> 
+		<div style="align:right">Contract Details</div>
+	</div>
+	<div class="grid-container contract"> 
+		<div style="align:right">Balance</div>
+		<div style="align:left" class="balance"></div>
+	</div>
+
+	<input type="button" onclick="buyContract()" value="Buy Contract">	
+</body>
+</html>
+
+
