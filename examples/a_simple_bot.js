@@ -29,8 +29,8 @@ async function main() {
             contract_type: 'CALL',
             currency,
             amount: 10,
-            duration: 5,
-            duration_unit: 't',
+            duration: 15,
+            duration_unit: 'm',
             symbol: 'frxUSDJPY',
             basis: 'stake',
         });
