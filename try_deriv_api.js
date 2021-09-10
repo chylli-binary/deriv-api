@@ -30,7 +30,7 @@ async function main() {
     try {
         const currency = await getAccount();
         const ticks = await api.ticks('frxUSDJPY');
-        //ticks.onUpdate().subscribe((data) => {console.log("tick ")});
+        const ticks_subscription = ticks.onUpdate().subscribe((data) => {console.log("tick ")});
 
         const contract = await api.contract({
             contract_type: 'CALL',
@@ -63,7 +63,7 @@ async function main() {
         const buy = await contract.buy();
 
         console.log(`Buy price is: ${buy.price.currency} ${buy.price.display}`);
-
+        ticks_subscription.unsubscribe();
         // Wait until the contract is sold
         await Promise.any([contract.onUpdate().pipe(find(({ is_sold }) => is_sold)).toPromise(),
             timeout(5000).then(() => console.log('not sold in 5 seconds'))]
@@ -72,6 +72,7 @@ async function main() {
         const { profit, status } = contract;
 
         console.log(`You ${status}: ${profit.currency} ${profit.display}`);
+
 
     } catch (err) {
         console.error(err);
