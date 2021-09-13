@@ -89,7 +89,7 @@ async function main() {
 
         const timeout2 = timeout(20000000);
         // Wait until the contract is sold
-        await Promise.any([contract2.onUpdate().pipe(find((data) => { return data.is_sold; })).toPromise(),
+        await Promise.any([contract2.onUpdate().pipe(find(({is_sold}) => is_sold)).toPromise(),
 
             timeout2.promise.then(() => console.log('not sold in 200 seconds')),
         ]).then(() => {
