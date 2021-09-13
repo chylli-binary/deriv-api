@@ -1,10 +1,12 @@
-'use strict';
-global.WebSocket = require('ws');
-const { find, first} = require('rxjs/operators');
-//const DerivAPI = require('@deriv/deriv-api/dist/DerivAPI');
-const DerivAPI = require('./dist/DerivAPI');
-const token = process.env.DERIV_TOKEN;
-const app_id = process.env.APP_ID || 1089;
+
+global.WebSocket      = require('ws');
+const { find, first } = require('rxjs/operators');
+const DerivAPI        = require('./dist/DerivAPI');
+
+// const DerivAPI = require('@deriv/deriv-api/dist/DerivAPI');
+
+const token           = process.env.DERIV_TOKEN;
+const app_id          = process.env.APP_ID || 1089;
 const expected_payout = process.env.EXPECTED_PAYOUT || 1;
 
 if (!token) {
@@ -25,36 +27,38 @@ async function getAccount() {
         console.log(`Your new balance is: ${balance.currency} ${balance.display}`);
     });
     return currency;
-} 
+}
 async function main() {
     try {
-        const currency = await getAccount();
-        const ticks = await api.ticks('frxUSDJPY');
-        const ticks_subscription = ticks.onUpdate().subscribe((data) => {console.log("tick ")});
+        const currency           = await getAccount();
+        const ticks              = await api.ticks('frxUSDJPY');
+        const ticks_subscription = ticks.onUpdate().subscribe((data) => { console.log('tick '); });
 
-        let contract = await api.contract({
+        const contract = await api.contract({
             contract_type: 'CALL',
             currency,
-            amount: 10,
-            duration: 15,
+            amount       : 10,
+            duration     : 15,
             duration_unit: 'm',
-            symbol: 'frxUSDJPY',
-            basis: 'stake',
+            symbol       : 'frxUSDJPY',
+            basis        : 'stake',
         });
 
-        //contract.onUpdate(console.log, console.log) ;
+        // contract.onUpdate(console.log, console.log) ;
         contract.onUpdate(({ status, payout, bid_price }) => {
             switch (status) {
                 case 'proposal':
                     return console.log(
-                        `Current payout: ${payout.currency} ${payout.display}`);
+                        `Current payout: ${payout.currency} ${payout.display}`,
+                    );
                 case 'open':
                     return console.log(
-                        `Current bid price: ${bid_price.currency} ${bid_price.display}`);
+                        `Current bid price: ${bid_price.currency} ${bid_price.display}`,
+                    );
                 default:
-                    console.log("contract onUpdate default");
+                    console.log('contract onUpdate default');
                     break;
-            };
+            }
         });
 
         // Wait until payout is greater than USD 19
@@ -66,18 +70,17 @@ async function main() {
         // Wait until the contract is sold
         const timeout1 = timeout(5000);
         await Promise.any([contract.onUpdate().pipe(find(({ is_sold }) => is_sold)).toPromise(),
-            timeout1.promise.then(() => console.log('not sold in 5 seconds'))]
-        ).then(() => clearTimeout(timeout1.timeout_id));
+            timeout1.promise.then(() => console.log('not sold in 5 seconds'))]).then(() => clearTimeout(timeout1.timeout_id));
 
 
         const contract2 = await api.contract({
             contract_type: 'CALL',
             currency,
-            amount: 10,
-            duration: 15,
+            amount       : 10,
+            duration     : 15,
             duration_unit: 's',
-            symbol: 'R_100',
-            basis: 'stake',
+            symbol       : 'R_100',
+            basis        : 'stake',
         });
 
         await contract2.onUpdate().pipe(first()).toPromise;
@@ -86,35 +89,31 @@ async function main() {
 
         const timeout2 = timeout(20000000);
         // Wait until the contract is sold
-        await Promise.any([contract2.onUpdate().pipe(find((data) => {console.log("---------------------------");return data.is_sold; })).toPromise(),
-            
-            timeout2.promise.then(() => console.log('not sold in 200 seconds'))
-        ]
-        ).then(() => {
-            let timeout_id = timeout2.timeout_id;
+        await Promise.any([contract2.onUpdate().pipe(find((data) => { return data.is_sold; })).toPromise(),
+
+            timeout2.promise.then(() => console.log('not sold in 200 seconds')),
+        ]).then(() => {
+            const { timeout_id } = timeout2;
             console.log(`timeout id ${timeout_id}`);
             clearTimeout(timeout2.timeout_id);
-            console.log("clearing timeout2");
+            console.log('clearing timeout2');
         });
-        // console.log(contract);
+
         const { profit, status, is_sold } = contract2;
 
         if (is_sold) {
             console.log(`You ${status}: ${profit.currency} ${profit.display}`);
         }
-
     } catch (err) {
         console.error(err);
     } finally {
         // Close the connection and exit
         api.basic.disconnect();
     }
-    // await new Promise((resolve) => setTimeout(() => {console.log("end"); resolve('1')}, 5000));
-
 }
 function timeout(ms) {
     let timeout_id;
-    let promise = new Promise(resolve => {timeout_id = setTimeout(resolve, ms)});
+    const promise = new Promise((resolve) => { timeout_id = setTimeout(resolve, ms); });
     console.log(`timeout id created ${timeout_id}`);
     return { timeout_id, promise };
 }
