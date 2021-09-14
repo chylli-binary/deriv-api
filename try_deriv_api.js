@@ -33,7 +33,8 @@ async function getAccount() {
     return currency;
 }
 async function getAssets(api) {
-    return await api.assets();
+    const assets = await api.basic.assetIndex();
+    return assets;
 }
 
 async function main() {
@@ -41,15 +42,15 @@ async function main() {
         const currency           = await getAccount();
         // const assets             = await api.assets(); // assets not implemented yet
         // const open_markets       = assets.open_markets;
-        // const assets = await getAssets(api);
-        // console.log(assets);
+        const assets = await getAssets(api);
+        console.log(assets);
         // const active_symbols  = await api.active_symbols(); // no active symbols
         // console.log(active_symbols);
         // no profit_table
         // immutable/Transactions.js is not used ???
+        return 'here';
         const r_100_underlying = await api.underlying('R_100');
         console.log(`underlying ${r_100_underlying.name.full} is_open ${r_100_underlying.is_open}`);
-        return 'here';
 
         const ticks              = await api.ticks('frxUSDJPY');
         const ticks_subscription = ticks.onUpdate().subscribe((data) => { console.log('tick '); });
