@@ -18,19 +18,33 @@ const api = new DerivAPI({ app_id });
 
 async function getAccount() {
     const account = await api.account(token);
-
-    const { balance, currency } = account;
+    // doc in Stream/Transactions : accounts.transaction_stream is wrong
+    const { balance, currency, transactions } = account;
 
     console.log(`Your current balance is: ${balance.currency} ${balance.display}`);
 
     balance.onUpdate(() => {
         console.log(`Your new balance is: ${balance.currency} ${balance.display}`);
     });
+    
+    transactions.onUpdate((transaction) => {
+        console.log(`You ${transaction.action}ed a contract "${transaction.longcode}" with amount ${transaction.amount.value} ${transaction.amount.currency}`)
+    });
     return currency;
 }
+
 async function main() {
     try {
         const currency           = await getAccount();
+        // const assets             = await api.assets(); // assets not implemented yet
+        // const open_markets       = assets.open_markets;
+        // const assets = await assets(api);
+        // const active_symbols  = await api.active_symbols(); // no active symbols
+        // console.log(active_symbols);
+        // no profit_table
+        // immutable/Transactions.js is not used ???
+        // return 'here';
+
         const ticks              = await api.ticks('frxUSDJPY');
         const ticks_subscription = ticks.onUpdate().subscribe((data) => { console.log('tick '); });
 
@@ -116,5 +130,9 @@ function timeout(ms) {
     const promise = new Promise((resolve) => { timeout_id = setTimeout(resolve, ms); });
     console.log(`timeout id created ${timeout_id}`);
     return { timeout_id, promise };
+}
+
+async function assets(api) {
+    return await api.assets();
 }
 main();
