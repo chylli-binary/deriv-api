@@ -33,7 +33,7 @@ async function getAccount() {
     return currency;
 }
 async function getAssets(api) {
-    const assets = await api.basic.assetIndex();
+    const assets = await api.basic.assetIndex({landing_company: 'virtual'});
     return assets;
 }
 
