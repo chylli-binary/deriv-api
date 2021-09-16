@@ -61,7 +61,6 @@ async function main() {
         console.log((await api.basic.contractsFor({ contracts_for: 'R_100' })).contracts_for.available[0]);
         // no profit_table
         // immutable/Transactions.js is not used ???
-        return 'here';
         const r_100_underlying = await api.underlying('R_100');
         console.log(`underlying ${r_100_underlying.name.full} is_open ${r_100_underlying.is_open}`);
 
@@ -138,6 +137,7 @@ async function main() {
         if (is_sold) {
             console.log(`You ${status}: ${profit.currency} ${profit.display}`);
         }
+        console.log((await api.basic.profitTable({sort: 'DESC', limit: 1})).profit_table.transactions[0]);
     } catch (err) {
         console.error(err);
     } finally {
