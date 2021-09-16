@@ -4,6 +4,12 @@ const { find, first } = require('rxjs/operators');
 const DerivAPI        = require('./dist/DerivAPI');
 
 // const DerivAPI = require('@deriv/deriv-api/dist/DerivAPI');
+// The steps to our API is:
+// active_symbos  to find out which symbol is available
+// contracts_for to find out what contract types are available for a symbol
+// proposal to get the ask price (the buy price) of a contract
+// buy to buy the contract with either proposal id or contract parameters
+// proposal_open_contract to get the information of a contract after purchase (whether the contract is open to closed)
 
 const token           = process.env.DERIV_TOKEN;
 const app_id          = process.env.APP_ID || 1089;
@@ -37,15 +43,22 @@ async function getAssets(api) {
     return assets;
 }
 
+async function getActiveSymbols(api) {
+    const active_symbols = await api.basic.activeSymbols();
+    return active_symbols;
+}
+
 async function main() {
     try {
         const currency           = await getAccount();
         // const assets             = await api.assets(); // assets not implemented yet
         // const open_markets       = assets.open_markets;
         const assets = await getAssets(api);
-        console.log(assets);
+        // console.log(assets);
         // const active_symbols  = await api.active_symbols(); // no active symbols
         // console.log(active_symbols);
+        console.log(await api.basic.activeSymbols({ active_symbols: 'brief' }));
+        console.log((await api.basic.contractsFor({ contracts_for: 'R_100' })).contracts_for.available[0]);
         // no profit_table
         // immutable/Transactions.js is not used ???
         return 'here';
