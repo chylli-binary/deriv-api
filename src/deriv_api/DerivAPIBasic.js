@@ -155,6 +155,7 @@ export default class DerivAPIBasic extends DerivAPICalls {
         const response_promise = this.sendAndGetSource(request).pipe(first()).toPromise();
 
         response_promise.then((response) => {
+            // TODO bug ? should be object_to_cache_key ?
             this.cache.set(request, response);
             if (this.storage) {
                 this.storage.set(request, response);
