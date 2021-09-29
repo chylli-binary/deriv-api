@@ -32,6 +32,7 @@ export default class Cache extends DerivAPICalls {
 
     async send(request) {
         if (await this.has(request)) {
+            // TODO await ?
             return this.get(request);
         }
 

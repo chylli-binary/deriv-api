@@ -33,10 +33,11 @@ export default class SubscriptionManager {
         this.subs_id_to_key         = {};
         this.key_to_subs_id         = {};
         this.buy_key_to_contract_id = {};
-        this.subs_per_msg_type      = [];
+        this.subs_per_msg_type      = []; // TODO {} ?
         // streams_list is the list of subscriptions msg_types available.
         // Please add/remove based on current available streams in api.
         // Refer https://developers.binary.com/
+        // TODO auto generate this one , move out of class
         this.streams_list = ['balance', 'candles', 'p2p_advertiser', 'p2p_order', 'proposal',
             'proposal_array', 'proposal_open_contract', 'ticks', 'ticks_history', 'transaction', 'website_status'];
     }
@@ -193,6 +194,7 @@ export default class SubscriptionManager {
         source.complete();
     }
 
+    # TODO move out class
     getMsgType(request) {
         return this.streams_list.find(stream_key => stream_key in request);
     }
