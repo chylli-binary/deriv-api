@@ -94,7 +94,7 @@ export default class SubscriptionManager {
                 // Forget subscriptions, but don't complain if failed
                 this.forget(this.key_to_subs_id[key]).then(() => {}, () => {});
             }),
-            share(),
+            share(), // TODO why need share ? api.sendAndGetSource returned already a subject
         );
 
         this.sources[key] = source;
