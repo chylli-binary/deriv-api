@@ -38,6 +38,7 @@ export default class SubscriptionManager {
         // Please add/remove based on current available streams in api.
         // Refer https://developers.binary.com/
         // TODO auto generate this one , move out of class
+        // TODO add buy into it
         this.streams_list = ['balance', 'candles', 'p2p_advertiser', 'p2p_order', 'proposal',
             'proposal_array', 'proposal_open_contract', 'ticks', 'ticks_history', 'transaction', 'website_status'];
     }
@@ -55,6 +56,7 @@ export default class SubscriptionManager {
      * @returns {Observable} - An RxJS Observable
      */
     subscribe(request) {
+        // TODO test if the msg type is in streams_list
         if (this.sourceExists(request)) {
             return this.getSource(request);
         }
